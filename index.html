@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manuel Cusme — Full Stack Developer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2a;
+      --accent: #00e5b0;
+      --accent2: #7c6fff;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --card: #13131c;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.35s cubic-bezier(.23,1,.32,1), opacity 0.2s;
+      opacity: 0.5;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.3;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(to bottom, rgba(10,10,15,0.95), transparent);
+      backdrop-filter: blur(4px);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 8rem 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,176,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,176,0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,229,176,0.08); top: -100px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(124,111,255,0.07); bottom: 0; left: -150px; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,229,176,0.08);
+      border: 1px solid rgba(0,229,176,0.2);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      width: fit-content;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-tag::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--accent); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+    h1 .line2 { color: transparent; -webkit-text-stroke: 1px rgba(232,232,240,0.3); }
+    h1 .accent { color: var(--accent); }
+
+    .hero-desc {
+      max-width: 520px;
+      margin-top: 2.5rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      animation: fadeUp 1s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1rem; margin-top: 3rem; flex-wrap: wrap;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.25s;
+      cursor: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 400;
+    }
+    .btn-primary:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0,229,176,0.25);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 3rem;
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.7rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+      animation: fadeUp 1s 0.5s ease both;
+    }
+    .scroll-line {
+      width: 40px; height: 1px; background: var(--muted);
+      position: relative; overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--accent);
+      animation: scrollAnim 1.8s infinite;
+    }
+    @keyframes scrollAnim {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* STATS */
+    .stats-bar {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 0; overflow: hidden;
+    }
+    .stat {
+      flex: 1; padding: 1.5rem 2.5rem;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem; font-weight: 800;
+      color: var(--accent); letter-spacing: -0.04em;
+    }
+    .stat-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
+
+    /* SECTIONS */
+    section { padding: 7rem 3rem; }
+    .section-header {
+      display: flex; align-items: baseline; gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+    .section-num {
+      font-size: 0.7rem; color: var(--accent);
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; letter-spacing: -0.03em;
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .skill-item {
+      background: var(--card);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-item::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+      transform: scaleX(0); transition: transform 0.25s;
+    }
+    .skill-item:hover { background: #16161f; }
+    .skill-item:hover::before { transform: scaleX(1); }
+    .skill-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .skill-name { font-size: 0.75rem; color: var(--text); letter-spacing: 0.05em; }
+    .skill-lvl { font-size: 0.65rem; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* PROJECTS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .project-card {
+      background: var(--card);
+      padding: 2.5rem;
+      transition: background 0.25s;
+      position: relative;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .project-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transform: scaleX(0); transition: transform 0.4s;
+    }
+    .project-card:hover { background: #14141e; }
+    .project-card:hover::after { transform: scaleX(1); }
+
+    .project-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .project-lang {
+      font-size: 0.65rem; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      background: rgba(0,229,176,0.08);
+      padding: 0.3rem 0.7rem; border-radius: 2px;
+    }
+    .project-fork {
+      font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em;
+    }
+
+    h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 0.75rem; color: var(--text);
+    }
+    .project-desc {
+      font-size: 0.8rem; color: var(--muted); line-height: 1.7;
+      flex: 1; margin-bottom: 2rem;
+    }
+
+    .project-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: auto;
+    }
+    .project-date { font-size: 0.65rem; color: var(--muted); }
+    .project-link {
+      font-size: 0.7rem; color: var(--accent);
+      text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: gap 0.2s;
+    }
+    .project-link:hover { gap: 0.8rem; }
+
+    /* ABOUT */
+    .about-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
+      align-items: start;
+    }
+    .about-text p {
+      font-size: 0.9rem; color: var(--muted); line-height: 1.9;
+      margin-bottom: 1.5rem;
+    }
+    .about-text p strong { color: var(--text); }
+    .about-text p .hl { color: var(--accent); }
+
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      background: var(--border);
+      padding: 0.75rem 1rem;
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f56; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #27c93f; }
+    .terminal-title { font-size: 0.65rem; color: var(--muted); margin-left: 0.5rem; letter-spacing: 0.08em; }
+    .terminal-body { padding: 1.5rem; font-size: 0.78rem; line-height: 2; }
+    .t-line { display: flex; gap: 0.75rem; }
+    .t-prompt { color: var(--accent2); }
+    .t-cmd { color: var(--text); }
+    .t-out { color: var(--muted); padding-left: 1.5rem; }
+    .t-hl { color: var(--accent); }
+    .t-str { color: #ff9d6e; }
+
+    /* CONTACT */
+    .contact-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .contact-inner::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,176,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .contact-label {
+      font-size: 0.7rem; color: var(--accent);
+      letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .contact-inner h2 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      margin-bottom: 1.5rem;
+    }
+    .contact-inner p { color: var(--muted); font-size: 0.85rem; max-width: 440px; margin: 0 auto 3rem; line-height: 1.8; }
+
+    .social-links {
+      display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .social-link {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.72rem; color: var(--muted);
+      text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border);
+      transition: all 0.25s;
+    }
+    .social-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* FOOTER */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    footer span { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 1.5rem;
+    }
+    .marquee-item span { color: var(--accent); }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 7rem 1.5rem 3rem; }
+      section { padding: 5rem 1.5rem; }
+      .stats-bar { flex-wrap: wrap; padding: 1rem; }
+      .stat { flex: 1 0 45%; border-right: none; border-bottom: 1px solid var(--border); }
+      .about-layout { grid-template-columns: 1fr; gap: 3rem; }
+      .contact-inner { padding: 3rem 2rem; }
+      footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <div class="nav-logo">MC/</div>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Proyectos</a></li>
+    <li><a href="#about">Sobre mí</a></li>
+    <li><a href="#contact">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orb orb-1"></div>
+  <div class="hero-orb orb-2"></div>
+
+  <div class="hero-tag">Disponible para proyectos</div>
+
+  <h1>
+    Manuel<br>
+    <span class="line2">Cusme</span><span class="accent">.</span>
+  </h1>
+
+  <p class="hero-desc">
+    Desarrollador <strong>Full Stack</strong> de Ecuador.<br>
+    Construyo aplicaciones web y sistemas robustos con
+    <span style="color:var(--text)">Java, JavaScript, TypeScript, Python & C#</span>.
+    Apasionado por el código limpio y la arquitectura escalable.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#projects" class="btn btn-primary">Ver proyectos →</a>
+    <a href="https://github.com/ManuelCusme" target="_blank" class="btn btn-ghost">GitHub</a>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Java <span>✦</span></div>
+    <div class="marquee-item">JavaScript <span>✦</span></div>
+    <div class="marquee-item">TypeScript <span>✦</span></div>
+    <div class="marquee-item">Python <span>✦</span></div>
+    <div class="marquee-item">C# <span>✦</span></div>
+    <div class="marquee-item">Full Stack Dev <span>✦</span></div>
+    <div class="marquee-item">Ecuador 🇪🇨 <span>✦</span></div>
+    <div class="marquee-item">Metodologías Ágiles <span>✦</span></div>
+    <div class="marquee-item">Git <span>✦</span></div>
+    <div class="marquee-item">Java <span>✦</span></div>
+    <div class="marquee-item">JavaScript <span>✦</span></div>
+    <div class="marquee-item">TypeScript <span>✦</span></div>
+    <div class="marquee-item">Python <span>✦</span></div>
+    <div class="marquee-item">C# <span>✦</span></div>
+    <div class="marquee-item">Full Stack Dev <span>✦</span></div>
+    <div class="marquee-item">Ecuador 🇪🇨 <span>✦</span></div>
+    <div class="marquee-item">Metodologías Ágiles <span>✦</span></div>
+    <div class="marquee-item">Git <span>✦</span></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat reveal">
+    <div class="stat-num">12+</div>
+    <div class="stat-label">Repositorios</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Lenguajes</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Stars ganadas</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num">EC</div>
+    <div class="stat-label">Ecuador 🇪🇨</div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2>Skills</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="skills-grid reveal">
+    <div class="skill-item">
+      <div class="skill-icon">☕</div>
+      <div class="skill-name">Java</div>
+      <div class="skill-lvl">Backend</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🟨</div>
+      <div class="skill-name">JavaScript</div>
+      <div class="skill-lvl">Frontend / Node</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🔷</div>
+      <div class="skill-name">TypeScript</div>
+      <div class="skill-lvl">Tipado fuerte</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🐍</div>
+      <div class="skill-name">Python</div>
+      <div class="skill-lvl">Scripts / Data</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🔷</div>
+      <div class="skill-name">C#</div>
+      <div class="skill-lvl">.NET / Apps</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🌐</div>
+      <div class="skill-name">HTML/CSS</div>
+      <div class="skill-lvl">Frontend</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🌿</div>
+      <div class="skill-name">Git</div>
+      <div class="skill-lvl">Control versiones</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🏃</div>
+      <div class="skill-name">Metodologías Ágiles</div>
+      <div class="skill-lvl">Scrum / Kanban</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🗄️</div>
+      <div class="skill-name">Bases de datos</div>
+      <div class="skill-lvl">SQL / NoSQL</div>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">🎮</div>
+      <div class="skill-name">Game Dev</div>
+      <div class="skill-lvl">Java / Capas</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2>Proyectos</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="projects-grid">
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Java</span>
+        <span class="project-fork">Original</span>
+      </div>
+      <h3>Tower Defense</h3>
+      <p class="project-desc">
+        Juego Tower Defense desarrollado en Java, implementando un modelo por capas y librerías para el aspecto visual. Arquitectura limpia con separación de responsabilidades.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Mar 2026</span>
+        <a href="https://github.com/ManuelCusme/Tower-Defense" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Java</span>
+        <span class="project-fork">Original</span>
+      </div>
+      <h3>ProyectoModelamiento</h3>
+      <p class="project-desc">
+        Proyecto académico de modelamiento de software en Java. Aplicación de patrones de diseño y principios de arquitectura de sistemas orientados a objetos.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Nov 2025</span>
+        <a href="https://github.com/ManuelCusme/ProyectoModelamiento" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">JavaScript</span>
+        <span class="project-fork">Original</span>
+      </div>
+      <h3>ProyectoModelamientoFrontend</h3>
+      <p class="project-desc">
+        Frontend del proyecto de modelamiento. Interfaz de usuario construida con JavaScript para interactuar con el backend Java, integrando ambas capas del stack.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Nov 2025</span>
+        <a href="https://github.com/ManuelCusme/ProyectoModelamientoFrontend" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Ágil</span>
+        <span class="project-fork">Fork colaborativo</span>
+      </div>
+      <h3>PROYECTO-MET_AGILES</h3>
+      <p class="project-desc">
+        Proyecto de la asignatura de Metodologías Ágiles. Aplicación práctica de Scrum, sprints y gestión de backlog en un entorno de desarrollo colaborativo con Git.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Abr 2026</span>
+        <a href="https://github.com/ManuelCusme/PROYECTO-MET_AGILES" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Multi-lang</span>
+        <span class="project-fork">Fork — MIT</span>
+      </div>
+      <h3>ProyectoMyCS</h3>
+      <p class="project-desc">
+        Fork de proyecto con licencia MIT. Exploración y contribución a proyecto de mayor escala (19k+ KB), con integración de múltiples tecnologías del stack full stack.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Abr 2026</span>
+        <a href="https://github.com/ManuelCusme/ProyectoMyCS" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">HTML</span>
+        <span class="project-fork">Original</span>
+      </div>
+      <h3>Comandos Básicos Git</h3>
+      <p class="project-desc">
+        Repositorio de comandos básicos de Git con documentación en HTML. Referencia práctica para flujos de trabajo con control de versiones, branches y colaboración.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Abr 2026</span>
+        <a href="https://github.com/ManuelCusme/comandos_basicos" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Web</span>
+        <span class="project-fork">Fork</span>
+      </div>
+      <h3>WEBMYCSW</h3>
+      <p class="project-desc">
+        Proyecto web de gran tamaño (7k+ KB). Aplicación web completa con múltiples módulos, demostrando capacidades de desarrollo frontend a escala.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Feb 2026</span>
+        <a href="https://github.com/ManuelCusme/WEBMYCSW" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-meta">
+        <span class="project-lang">Java</span>
+        <span class="project-fork">Original</span>
+      </div>
+      <h3>ProyectoModela</h3>
+      <p class="project-desc">
+        Proyecto de modelamiento en Java con arquitectura de capas. Implementación de patrones de diseño orientados a objetos y estructura de datos bien organizada.
+      </p>
+      <div class="project-footer">
+        <span class="project-date">Nov 2025</span>
+        <a href="https://github.com/ManuelCusme/ProyectoModela" target="_blank" class="project-link">Ver repo →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2>Sobre mí</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="about-layout">
+    <div class="about-text reveal">
+      <p>
+        Soy <strong>Manuel Cusme</strong>, desarrollador Full Stack con base en
+        <span class="hl">Ecuador 🇪🇨</span>. Me apasiona construir software que resuelve
+        problemas reales, con especial interés en la arquitectura de sistemas y el desarrollo
+        backend robusto.
+      </p>
+      <p>
+        Mi stack principal gira alrededor de <strong>Java</strong> para el backend,
+        <strong>JavaScript/TypeScript</strong> para el frontend, y también trabajo con
+        <strong>Python</strong> y <strong>C#</strong> dependiendo del proyecto.
+        Creo en el poder del <span class="hl">código limpio</span> y las metodologías ágiles.
+      </p>
+      <p>
+        Actualmente estudio y construyo proyectos que van desde <strong>juegos en Java</strong>
+        con arquitecturas por capas hasta <strong>aplicaciones web full stack</strong>,
+        siempre buscando aprender y mejorar cada iteración.
+      </p>
+      <a href="https://github.com/ManuelCusme" target="_blank" class="btn btn-ghost" style="margin-top:1rem; display:inline-flex;">
+        Ver GitHub completo →
+      </a>
+    </div>
+
+    <div class="terminal reveal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="terminal-title">manuel@portfolio ~ $</span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-prompt">~$</span><span class="t-cmd">whoami</span></div>
+        <div class="t-out"><span class="t-hl">Manuel Cusme</span> — Full Stack Developer</div>
+        <br>
+        <div class="t-line"><span class="t-prompt">~$</span><span class="t-cmd">cat location.txt</span></div>
+        <div class="t-out">Ecuador 🇪🇨</div>
+        <br>
+        <div class="t-line"><span class="t-prompt">~$</span><span class="t-cmd">cat skills.json</span></div>
+        <div class="t-out">{</div>
+        <div class="t-out">&nbsp; <span class="t-hl">"languages"</span>: [</div>
+        <div class="t-out">&nbsp;&nbsp;&nbsp; <span class="t-str">"Java"</span>, <span class="t-str">"JavaScript"</span>,</div>
+        <div class="t-out">&nbsp;&nbsp;&nbsp; <span class="t-str">"TypeScript"</span>, <span class="t-str">"Python"</span>, <span class="t-str">"C#"</span></div>
+        <div class="t-out">&nbsp; ],</div>
+        <div class="t-out">&nbsp; <span class="t-hl">"focus"</span>: <span class="t-str">"Full Stack"</span>,</div>
+        <div class="t-out">&nbsp; <span class="t-hl">"available"</span>: <span class="t-hl">true</span></div>
+        <div class="t-out">}</div>
+        <br>
+        <div class="t-line"><span class="t-prompt">~$</span><span class="t-cmd">git log --oneline -3</span></div>
+        <div class="t-out"><span class="t-hl">a3f2c1b</span> feat: ProyectoMyCS fork</div>
+        <div class="t-out"><span class="t-hl">8e1d4a0</span> docs: comandos_basicos Git</div>
+        <div class="t-out"><span class="t-hl">c7b9e2f</span> feat: Tower Defense Java</div>
+        <br>
+        <div class="t-line"><span class="t-prompt">~$</span><span class="t-cmd">_</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <p class="contact-label">04 — Contacto</p>
+    <h2>¿Trabajamos<br>juntos?</h2>
+    <p>Disponible para proyectos freelance, colaboraciones open source y oportunidades profesionales. ¡Hablemos!</p>
+
+    <a href="https://github.com/ManuelCusme" target="_blank" class="btn btn-primary">
+      Ir a GitHub →
+    </a>
+
+    <div class="social-links">
+      <a href="https://github.com/ManuelCusme" target="_blank" class="social-link">
+        ⌥ GitHub
+      </a>
+      <a href="https://manuelcusme.github.io" target="_blank" class="social-link">
+        ◈ Portfolio
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Manuel Cusme. Hecho con ❤ desde Ecuador.</span>
+  <span>Full Stack Developer — Java · JS · TS · Python · C#</span>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  // Hover effect on interactive elements
+  document.querySelectorAll('a, button, .skill-item, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(2.5)';
+      ring.style.opacity = '0.15';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.opacity = '0.5';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 60);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
